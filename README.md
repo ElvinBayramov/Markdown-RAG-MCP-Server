@@ -5,6 +5,10 @@
 [![MCP Server](https://img.shields.io/badge/MCP-Server-brightgreen.svg)](https://modelcontextprotocol.io/)
 [![Chroma DB](https://img.shields.io/badge/Vector_DB-Chroma-orange.svg)](https://trychroma.com/)
 
+<div align="center">
+  <img src="image.jpg" alt="Markdown RAG MCP Server" width="100%">
+</div>
+
 **A universal, production-ready RAG (Retrieval-Augmented Generation) Knowledge Server built for the Model Context Protocol (MCP).** Connect your Agentic IDEs (like Antigravity, Windsurf, Claude Code, Cursor and etc) to your local Markdown documentation via intelligent semantic search.
 
 Instead of dealing with simple keyword matching, this server implements an enterprise-grade hybrid search pipeline using vector embeddings and cross-encoder reranking—meaning your AI agents find exactly what they need, every time, entirely locally.
