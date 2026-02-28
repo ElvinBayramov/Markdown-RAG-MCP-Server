@@ -88,8 +88,8 @@ flowchart TD
 Clone the repository and run the setup script. The setup script will automatically install dependencies and download the necessary AI models (approx. 520MB) to your local cache so your first search is instantaneous.
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/markdown-rag-mcp.git
-cd markdown-rag-mcp
+git clone https://github.com/ElvinBayramov/Markdown-RAG-MCP-Server.git
+cd Markdown-RAG-MCP-Server
 python install.py
 ```
 
@@ -116,7 +116,7 @@ Update your `mcp_config.json` (or equivalent IDE settings):
   "mcpServers": {
     "markdown-rag": {
       "command": "python",
-      "args": ["/ABSOLUTE/PATH/TO/markdown-rag-mcp/server.py"],
+      "args": ["/ABSOLUTE/PATH/TO/Markdown-RAG-MCP-Server/server.py"],
       "env": {
         "RAG_DOCS_PATH": "/absolute/path/to/your/custom/docs_folder",
         "RAG_DB_PATH": "/absolute/path/to/store/chroma_db"
