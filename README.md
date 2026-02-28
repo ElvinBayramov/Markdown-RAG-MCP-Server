@@ -112,11 +112,40 @@ The installer auto-detects your IDE (Antigravity, Claude Desktop, Windsurf) and 
 
 ### 3. Point it to your documents
 
-By default, the server scans the **parent directory** of the repository for all `.md` files recursively. If you drop the server inside your existing project, it automatically indexes everything it finds.
+By default, the server scans the **parent directory** of the repository for all `.md` files **recursively**. No setup needed — if your docs are anywhere in that tree, they'll be found.
 
-No folders to create, no files to move.
+**Want to index a specific folder?** Add an `env` block to your MCP config:
 
-> **Want to lock it to a specific folder?** Set `RAG_DOCS_PATH` in your MCP config `env` block, or change the `DOCS_PATH` line directly in `server.py`.
+```json
+{
+  "mcpServers": {
+    "markdown-rag": {
+      "command": "python",
+      "args": ["C:\\path\\to\\Markdown-RAG-MCP-Server\\server.py"],
+      "env": {
+        "RAG_DOCS_PATH": "C:\\Users\\you\\MyProject\\docs"
+      }
+    }
+  }
+}
+```
+
+**Multiple folders?** Point `RAG_DOCS_PATH` to their common **parent directory** — the server scans recursively, so all subfolders are indexed automatically:
+
+```
+C:\Docs\                   ← set RAG_DOCS_PATH to this
+  ├── ProjectA\docs\       ← indexed
+  ├── ProjectB\wiki\       ← indexed
+  └── SharedNotes\         ← indexed
+```
+
+Alternatively, ask your AI agent at any time:
+
+```
+> index_documents("C:\\Users\\you\\ProjectA\\docs")
+```
+
+This re-indexes on demand without changing any config file.
 
 ---
 
@@ -135,9 +164,12 @@ The installer handles configuration automatically. If you need to configure manu
 }
 ```
 
-> **Note**: On Windows, use the full path to your Python executable in the `"command"` field (e.g. `"C:\\...\\python.exe"`).
+> **Windows tip**: If `python` doesn't work in the `"command"` field, use the full path to your Python executable: `"C:\\Users\\you\\AppData\\Local\\Programs\\Python\\Python313\\python.exe"`.
 >
-> **Optional `env` overrides**: Set `RAG_DOCS_PATH` to scan a specific folder, or `RAG_DB_PATH` to store the vector database elsewhere. Both are optional — the server has sensible defaults.
+> **`env` variables** (both optional):
+>
+> - `RAG_DOCS_PATH` — folder to scan for `.md` files (default: parent dir of the server)
+> - `RAG_DB_PATH` — where to store the vector database (default: `chroma_db/` inside the server folder)
 
 ---
 
