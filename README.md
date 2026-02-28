@@ -1,23 +1,28 @@
 <div align="center">
-  # 🧠 Markdown RAG MCP Server
-  
-  <br/>
-  <img src="image.jpg" alt="Markdown RAG MCP Server" width="100%">
-  <br/>
-  
-  **Your Personal High-Performance Local Developer Knowledge Base**
-  
-  Seamlessly connect your Agentic IDEs (Antigravity, Windsurf, Claude Code, Cursor) to your local documentation via intelligent hybrid semantic search.
-  
-  [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-  [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
-  [![MCP Server](https://img.shields.io/badge/MCP-Server-brightgreen.svg)](https://modelcontextprotocol.io/)
-  [![Chroma DB](https://img.shields.io/badge/Vector_DB-Chroma-orange.svg)](https://trychroma.com/)
-  
-  [Features](#-features) • [Architecture](#-architecture) • [Quickstart](#-quickstart) • [Configuration](#️-usage--configuration)
-</div>
+  <h1>🧠 Markdown RAG MCP Server</h1>
 
----
+  <img src="image.jpg" alt="Markdown RAG MCP Server" width="100%">
+  <br/><br/>
+
+<strong>Your Personal High-Performance Local RAG Knowledge Base</strong>
+<br/>
+<em>Seamlessly connect your Agentic IDEs (Antigravity, Windsurf, Claude Code, Cursor) to your local Markdown documentation via intelligent hybrid semantic search.</em>
+<br/><br/>
+
+<a href="https://opensource.org/licenses/Apache-2.0"><img src="https://img.shields.io/badge/License-Apache%202.0-blue.svg" alt="License"></a>
+<a href="https://www.python.org/downloads/"><img src="https://img.shields.io/badge/python-3.10+-blue.svg" alt="Python 3.10+"></a>
+<a href="https://modelcontextprotocol.io/"><img src="https://img.shields.io/badge/MCP-Server-brightgreen.svg" alt="MCP Server"></a>
+<a href="https://trychroma.com/"><img src="https://img.shields.io/badge/Vector_DB-Chroma-orange.svg" alt="Chroma DB"></a>
+<a href="https://huggingface.co/sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"><img src="https://img.shields.io/badge/🤗_Model-MiniLM--L12-yellow.svg" alt="HuggingFace"></a>
+<br/><br/>
+
+<a href="#-features">Features</a> •
+<a href="#️-architecture">Architecture</a> •
+<a href="#-quickstart">Quickstart</a> •
+<a href="#️-usage--configuration">Configuration</a> •
+<a href="#-faq">FAQ</a>
+
+</div>
 
 ---
 
