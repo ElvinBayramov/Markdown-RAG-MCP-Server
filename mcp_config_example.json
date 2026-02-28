@@ -1,0 +1,14 @@
+{
+    "mcpServers": {
+        "markdown-rag": {
+            "command": "python",
+            "args": [
+                "/ABSOLUTE/PATH/TO/markdown-rag-mcp/server.py"
+            ],
+            "env": {
+                "RAG_DOCS_PATH": "/absolute/path/to/your/docs/folder",
+                "RAG_DB_PATH": "/absolute/path/to/markdown-rag-mcp/chroma_db"
+            }
+        }
+    }
+}
