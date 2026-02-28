@@ -1,17 +1,23 @@
-# 🧠 Markdown RAG MCP Server
-
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
-[![MCP Server](https://img.shields.io/badge/MCP-Server-brightgreen.svg)](https://modelcontextprotocol.io/)
-[![Chroma DB](https://img.shields.io/badge/Vector_DB-Chroma-orange.svg)](https://trychroma.com/)
-
 <div align="center">
+  # 🧠 Markdown RAG MCP Server
+  
+  <br/>
   <img src="image.jpg" alt="Markdown RAG MCP Server" width="100%">
+  <br/>
+  
+  **Your Personal High-Performance Local Developer Knowledge Base**
+  
+  Seamlessly connect your Agentic IDEs (Antigravity, Windsurf, Claude Code, Cursor) to your local documentation via intelligent hybrid semantic search.
+  
+  [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+  [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
+  [![MCP Server](https://img.shields.io/badge/MCP-Server-brightgreen.svg)](https://modelcontextprotocol.io/)
+  [![Chroma DB](https://img.shields.io/badge/Vector_DB-Chroma-orange.svg)](https://trychroma.com/)
+  
+  [Features](#-features) • [Architecture](#-architecture) • [Quickstart](#-quickstart) • [Configuration](#️-usage--configuration)
 </div>
 
-**A universal, production-ready RAG (Retrieval-Augmented Generation) Knowledge Server built for the Model Context Protocol (MCP).** Connect your Agentic IDEs (like Antigravity, Windsurf, Claude Code, Cursor and etc) to your local Markdown documentation via intelligent semantic search.
-
-Instead of dealing with simple keyword matching, this server implements an enterprise-grade hybrid search pipeline using vector embeddings and cross-encoder reranking—meaning your AI agents find exactly what they need, every time, entirely locally.
+---
 
 ---
 
