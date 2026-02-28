@@ -131,12 +131,13 @@ def _inject_into_config(config_path, entry):
 
 def auto_configure():
     """
-    Auto-detect installed IDEs and inject the MCP config entry.
-    Falls back to printing the config if no IDE config files are found.
+    Auto-detect installed IDEs and offer to inject the MCP config entry.
+    Always asks before writing. Shows existing entry if one is already configured.
     """
     print("\n[4/4] Configuring MCP connection...")
 
     entry = _build_server_entry()
+    server_path = entry["args"][0]
 
     # --- Try auto-detect ---
     found = _detect_existing_configs()
@@ -149,10 +150,37 @@ def auto_configure():
         print()
         for ide, path in found:
             try:
+                # Check if markdown-rag already exists
+                with open(path, "r", encoding="utf-8") as f:
+                    existing = json.load(f)
+                existing_entry = existing.get("mcpServers", {}).get("markdown-rag")
+
+                if existing_entry:
+                    existing_path = existing_entry.get("args", [""])[0]
+                    if os.path.normpath(existing_path) == os.path.normpath(server_path):
+                        print(f"  [OK] {ide} — already configured with this server. Skipping.")
+                        continue
+
+                    # Different path — warn user
+                    print(f"  [!!] {ide} — 'markdown-rag' already exists:")
+                    print(f"       Current : {existing_path}")
+                    print(f"       New     : {server_path}")
+                    answer = input(f"       Overwrite? (y/N): ").strip().lower()
+                    if answer != "y":
+                        print(f"       Skipped. Existing config preserved.")
+                        continue
+                else:
+                    # No existing entry — ask to add
+                    answer = input(f"  Add 'markdown-rag' to {ide} config? (Y/n): ").strip().lower()
+                    if answer == "n":
+                        print(f"       Skipped.")
+                        continue
+
                 _inject_into_config(path, entry)
-                print(f"  [OK] {ide} — config updated automatically!")
+                print(f"  [OK] {ide} — config updated!")
+
             except Exception as e:
-                print(f"  [!!] {ide} — could not write: {e}")
+                print(f"  [!!] {ide} — could not process: {e}")
                 print(f"       Please add manually to: {path}")
     else:
         print("  No IDE config files detected automatically.")
