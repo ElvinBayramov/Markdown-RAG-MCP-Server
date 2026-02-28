@@ -100,13 +100,15 @@ flowchart TD
 
 ### 2. Installation
 
-Clone the repository and run the setup script. The setup script will automatically install dependencies and download the necessary AI models (approx. 520MB) to your local cache so your first search is instantaneous.
+Clone the repository and run the setup script. It will install dependencies, download AI models (~520MB), and **automatically configure your IDE**.
 
 ```bash
 git clone https://github.com/ElvinBayramov/Markdown-RAG-MCP-Server.git
 cd Markdown-RAG-MCP-Server
 python install.py
 ```
+
+The installer auto-detects your IDE (Antigravity, Claude Desktop, Windsurf) and injects the correct config — **no manual path editing required**. Just restart your IDE after installation.
 
 ### 3. Point it to your documents
 
@@ -120,29 +122,22 @@ No folders to create, no files to move.
 
 ## ⚙️ Usage & Configuration
 
-To use the tools, add the server to your MCP-compatible IDE or Agent (like Claude Desktop, Windsurf, generic MCP hosts).
-
-### MCP Configuration Entry
-
-Update your `mcp_config.json` (or equivalent IDE settings):
+The installer handles configuration automatically. If you need to configure manually (e.g. for Cursor or other MCP hosts), add this to your `mcp_config.json`:
 
 ```json
 {
   "mcpServers": {
     "markdown-rag": {
       "command": "python",
-      "args": ["/ABSOLUTE/PATH/TO/Markdown-RAG-MCP-Server/server.py"],
-      "env": {
-        "RAG_DOCS_PATH": "/absolute/path/to/your/custom/docs_folder",
-        "RAG_DB_PATH": "/absolute/path/to/store/chroma_db"
-      }
+      "args": ["C:\\absolute\\path\\to\\Markdown-RAG-MCP-Server\\server.py"]
     }
   }
 }
 ```
 
-> **Note**: Both `env` variables are completely OPTIONAL. If omitted, the server defaults to **scanning the parent directory** of the project (recursively finding all `.md` files).
-> **Windows Users**: You may need to provide the full absolute path to your Python executable in the `"command"` field.
+> **Note**: On Windows, use the full path to your Python executable in the `"command"` field (e.g. `"C:\\...\\python.exe"`).
+>
+> **Optional `env` overrides**: Set `RAG_DOCS_PATH` to scan a specific folder, or `RAG_DB_PATH` to store the vector database elsewhere. Both are optional — the server has sensible defaults.
 
 ---
 

@@ -3,12 +3,8 @@
         "markdown-rag": {
             "command": "python",
             "args": [
-                "/ABSOLUTE/PATH/TO/Markdown-RAG-MCP-Server/server.py"
-            ],
-            "env": {
-                "RAG_DOCS_PATH": "/absolute/path/to/your/docs/folder",
-                "RAG_DB_PATH": "/absolute/path/to/Markdown-RAG-MCP-Server/chroma_db"
-            }
+                "C:\\path\\to\\Markdown-RAG-MCP-Server\\server.py"
+            ]
         }
     }
 }
