@@ -28,7 +28,9 @@ from search_engine import _build_bm25
 from exceptions import OmniDocsError, IndexingError, CollectionError
 
 # Thread safety lock for concurrent access from watcher + API + MCP
-_index_lock = threading.Lock()
+# Using RLock (re-entrant) because _save_hash_cache is called from within
+# index_documents which already holds the lock.
+_index_lock = threading.RLock()
 
 
 # ──────────────────────────────────────────────

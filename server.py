@@ -22,10 +22,18 @@ Architecture (v3.4):
 
 import os
 import re
+import asyncio
 import warnings
 import logging
+import sys
 from pathlib import Path
 from typing import Optional
+
+# Ensure that local modules (store, search_engine, parsers) can be imported
+# regardless of where this script is executed from (e.g. from Antigravity or Cursor root)
+WORKSPACE_ROOT = Path(__file__).parent.resolve()
+if str(WORKSPACE_ROOT) not in sys.path:
+    sys.path.insert(0, str(WORKSPACE_ROOT))
 
 os.environ["HF_HUB_DISABLE_PROGRESS_BARS"] = "1"
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
@@ -39,7 +47,6 @@ from fastmcp import FastMCP
 import chromadb
 from chromadb.utils import embedding_functions
 
-# Import modular components
 import search_engine
 import store
 from parsers import (
@@ -77,17 +84,49 @@ _BM25_CACHE_PATH = _SERVER_DIR / "data" / "bm25_cache.pkl"
 # Device detection (GPU optional — no torch required)
 # ──────────────────────────────────────────────
 def _detect_device() -> str:
-    """Detect compute device. Set RAG_DEVICE=cuda to force GPU."""
+    """Detect compute device with CUDA health check.
+
+    CUDA can silently deadlock when the GPU is occupied by other processes
+    (ComfyUI, game engines, etc.). This function detects CUDA availability
+    AND verifies it actually works by running a short encode() with a timeout.
+    If CUDA is unresponsive, falls back to CPU automatically.
+    """
     requested = os.getenv("RAG_DEVICE", "auto").lower()
     if requested == "cpu":
         return "cpu"
     try:
         import torch
-        if requested == "cuda" or (requested == "auto" and torch.cuda.is_available()):
-            return "cuda"
+        if not (requested == "cuda" or (requested == "auto" and torch.cuda.is_available())):
+            return "cpu"
     except ImportError:
-        pass
-    return "cpu"
+        return "cpu"
+
+    # CUDA is available — verify it actually works with a quick encode test
+    import sys
+    try:
+        import concurrent.futures
+        from sentence_transformers import SentenceTransformer
+
+        def _cuda_probe():
+            model = SentenceTransformer(EMBED_MODEL, device="cuda")
+            model.encode(["health check"], normalize_embeddings=True)
+            return True
+
+        with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:
+            future = pool.submit(_cuda_probe)
+            future.result(timeout=15)  # 15 seconds max for first encode
+
+        sys.stderr.write("✓ CUDA health check passed\n")
+        return "cuda"
+
+    except concurrent.futures.TimeoutError:
+        sys.stderr.write(
+            "⚠ CUDA health check timed out (GPU busy?). Falling back to CPU.\n"
+        )
+        return "cpu"
+    except Exception as e:
+        sys.stderr.write(f"⚠ CUDA health check failed: {e}. Falling back to CPU.\n")
+        return "cpu"
 
 DEVICE = _detect_device()
 
@@ -446,8 +485,6 @@ def index_url(
         use_sitemap:          Try sitemap.xml first for faster discovery (default: True)
         use_playwright:       Use headless browser for JS-rendered sites (default: False)
     """
-    import asyncio
-
     try:
         from crawler import (
             crawl_and_index,
@@ -463,91 +500,49 @@ def index_url(
             "and install: pip install httpx beautifulsoup4 html2text"
         )
 
-    try:
-        try:
-            asyncio.get_running_loop()
-            is_running = True
-        except RuntimeError:
-            is_running = False
-
-        if is_running:
-            import concurrent.futures
-            def _run_in_thread():
-                return asyncio.run(_run_index(
-                    uri, collection, max_pages, max_depth,
-                    stay_within_prefix, exclude_patterns,
-                    use_sitemap, use_playwright,
-                ))
-            with concurrent.futures.ThreadPoolExecutor() as pool:
-                future = pool.submit(_run_in_thread)
-                return future.result()
-        else:
-            return asyncio.run(_run_index(
+    async def _crawl():
+        """Async crawl dispatcher — runs in its own event loop in a separate thread."""
+        if uri.startswith(("http://", "https://")):
+            return await crawl_and_index(
                 uri, collection, max_pages, max_depth,
                 stay_within_prefix, exclude_patterns,
                 use_sitemap, use_playwright,
-            ))
+            ), f"Web: {uri}"
+
+        elif uri.startswith("github://"):
+            return await index_github(uri, collection), f"GitHub: {uri}"
+
+        elif uri.startswith("npm://"):
+            return await index_npm(uri, collection), f"npm: {uri}"
+
+        elif uri.startswith("pypi://"):
+            return await index_pypi(uri, collection), f"PyPI: {uri}"
+
+        elif uri.lower().endswith(".zip"):
+            local_path = uri.replace("file:///", "").replace("file://", "")
+            return await index_zip(local_path), f"ZIP: {uri}"
+
+        else:
+            return ([], f"Error: unknown URI scheme '{uri}'"), "unknown"
+
+    try:
+        # FastMCP runs sync tools in its own thread pool.
+        # This thread has no asyncio event loop, so asyncio.run() is safe.
+        (pages, status), label = asyncio.run(_crawl())
+
+        if not pages:
+            return f"No content found.\n{status}"
+
+        index_result = store.index_web_pages(
+            pages, collection, label,
+            client=client,
+            embed_fn=embed_fn,
+            bm25_cache_path=_BM25_CACHE_PATH,
+        )
+        return f"{status}\n{index_result}"
+
     except Exception as e:
         return f"Error during indexing: {e}"
-
-
-async def _run_index(
-    uri: str,
-    collection: str,
-    max_pages: int,
-    max_depth: int,
-    stay_within_prefix: bool,
-    exclude_patterns: list[str] | None,
-    use_sitemap: bool,
-    use_playwright: bool,
-) -> str:
-    """Async dispatcher for index_url()."""
-    from crawler import (
-        crawl_and_index,
-        index_github,
-        index_npm,
-        index_pypi,
-        index_zip,
-    )
-
-    if uri.startswith(("http://", "https://")):
-        pages, status = await crawl_and_index(
-            uri, collection, max_pages, max_depth,
-            stay_within_prefix, exclude_patterns,
-            use_sitemap, use_playwright,
-        )
-        label = f"Web: {uri}"
-
-    elif uri.startswith("github://"):
-        pages, status = await index_github(uri, collection)
-        label = f"GitHub: {uri}"
-
-    elif uri.startswith("npm://"):
-        pages, status = await index_npm(uri, collection)
-        label = f"npm: {uri}"
-
-    elif uri.startswith("pypi://"):
-        pages, status = await index_pypi(uri, collection)
-        label = f"PyPI: {uri}"
-
-    elif uri.lower().endswith(".zip"):
-        local_path = uri.replace("file:///", "").replace("file://", "")
-        pages, status = await index_zip(local_path)
-        label = f"ZIP: {uri}"
-
-    else:
-        return f"Error: unknown URI scheme '{uri}'. Use http://, https://, github://, npm://, pypi://"
-
-    if not pages:
-        return f"No content found.\n{status}"
-
-    index_result = store.index_web_pages(
-        pages, collection, label,
-        client=client,
-        embed_fn=embed_fn,
-        bm25_cache_path=_BM25_CACHE_PATH,
-    )
-    return f"{status}\n{index_result}"
 
 
 
